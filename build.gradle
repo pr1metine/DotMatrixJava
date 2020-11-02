@@ -1,0 +1,19 @@
+plugins {
+    id('java')
+    id('application')
+}
+
+application {
+    mainClass.set('aguegu.dotmatrix.DotMatrixTest')
+}
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.neuronrobotics:nrjavaserial:5.2.1'
+}
