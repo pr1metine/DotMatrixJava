@@ -4,7 +4,7 @@
 PC control program for generic 8x8x8 3D LED Cube found on eBay
 (e.g. 3D LightSquared 8x8x8 LED Cube DIY kit, ideasoft, etc.)
 
-![Program view](/help/program_view.png)
+![Program view](help/program_view.png)
 
 * Written in Java (requires Java RE, download here: http://java.com)
 * Supports direct animation playback through Serial/UART interface (rxtx library)
@@ -15,8 +15,10 @@ This program can control any packet format compatible LED cube (see below).
 Example firmware of a compatible LED cube with an STC12C5A60S2 MCU can be found here: [Source Code](https://github.com/tomazas/ledcube8x8x8)
 
 ##### Using the program
-* Run run_x32.bat for 32-bit Windows
-* Run run_x64.bat for 64-bit Windows
+1. Download either `DotMatrixJava.tar` or `DotMatrixJava.zip` depending on your personal preferences
+2. Unzip the downloaded archive
+3. `cd` into the unzipped archive to `DotMatrixJava/bin`
+4. Run the binary corresponding to your OS
 
 Check this YouTube video for example: https://youtu.be/UplJi7pdV_Y
 [![Using program](http://img.youtube.com/vi/UplJi7pdV_Y/0.jpg)](https://youtu.be/UplJi7pdV_Y)
