@@ -145,7 +145,7 @@ public class DotMatrixGUI extends JFrame {
 
 				if (file == null || result != JFileChooser.APPROVE_OPTION)
 					break;
-				
+
 				fs.setCurrentDirectory(file); // save old directory
 
 				fileRecord = file;
@@ -269,14 +269,14 @@ public class DotMatrixGUI extends JFrame {
 			setActiveFrame(index);
 		}
 	}
-	
+
 	public void setActiveFrame(int index) {
 		dmrf = dmr.getFrame(index);
 		panelRecord.setFrame(dmrf);
 		panelRecord.refresh(true);
 		refreshFrame();
 	}
-	
+
 	public int getNumFrames() {
 		return listFrame.getNumFrames();
 	}
@@ -334,6 +334,11 @@ public class DotMatrixGUI extends JFrame {
 			miChinese.addActionListener(this);
 			mnLanguage.add(miChinese);
 
+			JMenuItem miGerman = new JMenuItem(res.getString("german"));
+			miGerman.setActionCommand("german");
+			miGerman.addActionListener(this);
+			mnLanguage.add(miGerman);
+
 			this.add(mnFile);
 			this.add(panelRecord.getMenu());
 			this.add(mnRecord);
@@ -355,6 +360,10 @@ public class DotMatrixGUI extends JFrame {
 				break;
 			case "english":
 				locale = Locale.ENGLISH;
+				init();
+				break;
+			case "german":
+				locale = Locale.GERMAN;
 				init();
 				break;
 			}
