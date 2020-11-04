@@ -6,14 +6,13 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 public class DMImage extends BufferedImage {
-	private static int blockWidth = 13;
-	private static Color backgroundColor = Color.lightGray;
-	private static Color onColor = Color.white;
-	private static Color offColor = Color.gray;
-	private static BasicStroke bs;
+	private static final int blockWidth = 13;
+	private static final Color backgroundColor = Color.lightGray;
+	private static final Color onColor = Color.white;
+	private static final Color offColor = Color.gray;
 
-	private Graphics2D g2d;
-	private boolean[] dot;
+	private final Graphics2D g2d;
+	private final boolean[] dot;
 
 	public DMImage() {
 		super(blockWidth * 8, blockWidth * 8, BufferedImage.TYPE_BYTE_GRAY);
@@ -24,7 +23,7 @@ public class DMImage extends BufferedImage {
 		g2d.setBackground(backgroundColor);
 		g2d.clearRect(0, 0, this.getWidth(), this.getHeight());
 
-		bs = new BasicStroke(blockWidth - 1);
+		BasicStroke bs = new BasicStroke(blockWidth - 1);
 		g2d.setStroke(bs);
 
 		this.update();
@@ -43,6 +42,7 @@ public class DMImage extends BufferedImage {
 		try {
 			dot[index] = value;
 		} catch (ArrayIndexOutOfBoundsException ex) {
+			ex.printStackTrace();
 		}
 	}
 

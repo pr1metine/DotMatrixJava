@@ -1,10 +1,12 @@
 package aguegu.dotmatrix;
 
+import java.util.Arrays;
+
 public class DotMatrix {
 	public static final int DOT_LENGTH = 512;
 	public static final int CACHE_LENGTH = 64;
 
-	private static final int CIRCLE[][] = {
+	private static final int[][] CIRCLE = {
 			{ 27, 28, 36, 35 },
 			{ 18, 19, 20, 21, 29, 37, 45, 44, 43, 42, 34, 26 },
 			{ 9, 10, 11, 12, 13, 14, 22, 30, 38, 46, 54, 53, 52, 51, 50, 49,
@@ -12,14 +14,14 @@ public class DotMatrix {
 			{ 0, 1, 2, 3, 4, 5, 6, 7, 15, 23, 31, 39, 47, 55, 63, 62, 61, 60,
 					59, 58, 57, 56, 48, 40, 32, 24, 16, 8 } };
 
-	private static final byte BYTE_REVERSE[] = { 0x00, 0x08, 0x04, 0x0c, 0x02,
+	private static final byte[] BYTE_REVERSE = { 0x00, 0x08, 0x04, 0x0c, 0x02,
 			0x0a, 0x06, 0x0e, 0x01, 0x09, 0x05, 0x0d, 0x03, 0x0b, 0x07, 0x0f };
 
-	private boolean[] dot;
+	private final boolean[] dot;
 
-	public static enum Direction {
+	public enum Direction {
 		X_POSI, X_NEGA, Y_POSI, Y_NEGA, Z_POSI, Z_NEGA,
-	};
+	}
 
 	public DotMatrix() {
 		dot = new boolean[DOT_LENGTH];
@@ -41,6 +43,7 @@ public class DotMatrix {
 		try {
 			dot[index] = val;
 		} catch (ArrayIndexOutOfBoundsException ex) {
+			ex.printStackTrace();
 		}
 	}
 
@@ -48,6 +51,7 @@ public class DotMatrix {
 		try {
 			dot[index] = !dot[index];
 		} catch (ArrayIndexOutOfBoundsException ex) {
+			ex.printStackTrace();
 		}
 	}
 
@@ -56,7 +60,7 @@ public class DotMatrix {
 			dot[i] = !dot[i];
 	}
 
-	public static byte flipeByte(byte c) {
+	public static byte flipByte(byte c) {
 		return (byte) ((BYTE_REVERSE[c & 0x0f] << 4) ^ (BYTE_REVERSE[(c >> 4) & 0x0f] & 0x0f));
 	}
 
@@ -73,7 +77,7 @@ public class DotMatrix {
 	}
 
 	static public String cacheString(byte[] cache) {
-		String s = new String();
+		String s = "";
 
 		for (int i = 0; i < cache.length; i++) {
 			if (i > 0 && i < 8) continue; // skip irrelevant parameters that we don't use (brightness etc.);
@@ -86,8 +90,7 @@ public class DotMatrix {
 	}
 
 	static public int byteToInt(byte c) {
-		int i = ((int) c + 256) % 256;
-		return i;
+		return ((int) c + 256) % 256;
 	}
 
 	public String cacheString() {
@@ -106,7 +109,7 @@ public class DotMatrix {
 			for (int j = 0; j < 8; j++)
 				dot[i + j] = (cache & (0x01 << j)) > 0;
 		} catch (ArrayIndexOutOfBoundsException ex) {
-			System.out.println(ex.getStackTrace());
+			ex.printStackTrace();
 		}
 	}
 
@@ -116,7 +119,7 @@ public class DotMatrix {
 				this.setCache(j, cache[i]);
 			}
 		} catch (ArrayIndexOutOfBoundsException ex) {
-			System.out.println(ex.getStackTrace());
+			ex.printStackTrace();
 		}
 	}
 
@@ -126,14 +129,12 @@ public class DotMatrix {
 				this.setCache(i, cache[i]);
 			}
 		} catch (ArrayIndexOutOfBoundsException ex) {
-			System.out.println(ex.getStackTrace());
+			ex.printStackTrace();
 		}
 	}
 
 	public void clear(boolean val) {
-		for (int i = 0; i < dot.length; i++) {
-			dot[i] = val;
-		}
+		Arrays.fill(dot, val);
 	}
 
 	private int getIndex(int x, int y, int z) {
@@ -171,7 +172,7 @@ public class DotMatrix {
 			int y_end = p[p.length - 1] / 8;
 
 			for (int z = 0; z < 8; z++)
-				dot[getIndex(x_end, y_end, z)] = recycle ? tmp[z] : false;
+				dot[getIndex(x_end, y_end, z)] = recycle && tmp[z];
 
 		} else {
 			boolean[] tmp = new boolean[8];
@@ -197,7 +198,7 @@ public class DotMatrix {
 			int x_begin = p[0] % 8;
 			int y_begin = p[0] / 8;
 			for (int z = 0; z < 8; z++)
-				dot[getIndex(x_begin, y_begin, z)] = recycle ? tmp[z] : false;
+				dot[getIndex(x_begin, y_begin, z)] = recycle && tmp[z];
 		}
 	}
 
@@ -213,42 +214,42 @@ public class DotMatrix {
 					temp = dot[getIndex(z, x, y)];
 					for (; z > 0; z--)
 						dot[getIndex(z, x, y)] = dot[getIndex(z - 1, x, y)];
-					dot[getIndex(z, x, y)] = recycle ? temp : false;
+					dot[getIndex(z, x, y)] = recycle && temp;
 					break;
 				case X_NEGA:
 					z = 0;
 					temp = dot[getIndex(z, x, y)];
 					for (; z < 7; z++)
 						dot[getIndex(z, x, y)] = dot[getIndex(z + 1, x, y)];
-					dot[getIndex(z, x, y)] = recycle ? temp : false;
+					dot[getIndex(z, x, y)] = recycle && temp;
 					break;
 				case Y_NEGA:
 					z = 0;
 					temp = dot[getIndex(y, z, x)];
 					for (; z < 7; z++)
 						dot[getIndex(y, z, x)] = dot[getIndex(y, z + 1, x)];
-					dot[getIndex(y, z, x)] = recycle ? temp : false;
+					dot[getIndex(y, z, x)] = recycle && temp;
 					break;
 				case Y_POSI:
 					z = 7;
 					temp = dot[getIndex(y, z, x)];
 					for (; z > 0; z--)
 						dot[getIndex(y, z, x)] = dot[getIndex(y, z - 1, x)];
-					dot[getIndex(y, z, x)] = recycle ? temp : false;
+					dot[getIndex(y, z, x)] = recycle && temp;
 					break;
 				case Z_NEGA:
 					z = 0;
 					temp = dot[getIndex(x, y, z)];
 					for (; z < 7; z++)
 						dot[getIndex(x, y, z)] = dot[getIndex(x, y, z + 1)];
-					dot[getIndex(x, y, z)] = recycle ? temp : false;
+					dot[getIndex(x, y, z)] = recycle && temp;
 					break;
 				case Z_POSI:
 					z = 7;
 					temp = dot[getIndex(x, y, z)];
 					for (; z > 0; z--)
 						dot[getIndex(x, y, z)] = dot[getIndex(x, y, z - 1)];
-					dot[getIndex(x, y, z)] = recycle ? temp : false;
+					dot[getIndex(x, y, z)] = recycle && temp;
 					break;
 				default:
 					break;

@@ -8,14 +8,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 
 public class DMRecord {
-	private ArrayList<DMRecordFrame> record;
+	private final ArrayList<DMRecordFrame> record;
 
 	public DMRecord() {
-		record = new ArrayList<DMRecordFrame>();
+		record = new ArrayList<>();
 	}
 
 	public DMRecordFrame[] getFrames() {
@@ -35,7 +34,7 @@ public class DMRecord {
 			dos.close();
 			fos.close();
 		} catch (IOException ex) {
-			System.out.println(ex);
+			ex.printStackTrace();
 		}
 	}
 
@@ -63,7 +62,7 @@ public class DMRecord {
 	}
 
 	public ArrayList<String> getList() {
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 
 		for (int i = 0; i < record.size(); i++) {
 			list.add(Integer.toString(i));
@@ -146,10 +145,10 @@ public class DMRecord {
 	}
 
 	private void sortRecord() {
-		Collections.sort(record, new FrameComparator());
+		record.sort(new FrameComparator());
 	}
 
-	public class FrameComparator implements Comparator<DMRecordFrame> {
+	public static class FrameComparator implements Comparator<DMRecordFrame> {
 		@Override
 		public int compare(DMRecordFrame o1, DMRecordFrame o2) {
 			return o1.getIndex() - o2.getIndex();

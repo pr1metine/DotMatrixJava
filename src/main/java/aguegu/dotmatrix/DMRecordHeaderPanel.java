@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -36,11 +37,11 @@ public class DMRecordHeaderPanel extends JPanel {
 
 	private SerialPort port;
 	private OutputStream outputStream;
-	private JComboBox<String> baudBox;
-	private JComboBox<String> portBox;
+	private final JComboBox<String> baudBox;
+	private final JComboBox<String> portBox;
 	private Timer timer;
-	private JTextField delayBox;
-	private JCheckBox loopChk;
+	private final JTextField delayBox;
+	private final JCheckBox loopChk;
 
 	public DMRecordHeaderPanel(DMRecordPanel dmrp, final ResourceBundle res) {
 		parent = dmrp;
@@ -54,23 +55,20 @@ public class DMRecordHeaderPanel extends JPanel {
 		JPanel panelAttachment = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		panelAttachment.add(new JLabel(res.getString("comport") + ":"));
 		
-		portBox = new JComboBox<String>(enumeratePorts().toArray(new String[]{}));
+		portBox = new JComboBox<>(enumeratePorts().toArray(new String[]{}));
 		portBox.setEditable(true);
 		
 		panelAttachment.add(portBox);
 		
 		final JButton refreshBtn = new JButton(res.getString("refresh"));
-		refreshBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				portBox.removeAllItems();
-				portBox.setModel(new DefaultComboBoxModel<String>(enumeratePorts().toArray(new String[]{})));
-			}
+		refreshBtn.addActionListener(e -> {
+			portBox.removeAllItems();
+			portBox.setModel(new DefaultComboBoxModel<>(enumeratePorts().toArray(new String[]{})));
 		});
 		panelAttachment.add(refreshBtn);
 		
 		panelAttachment.add(new JLabel(res.getString("baud") + ":"));
-		baudBox = new JComboBox<String>(new String[]{"9600","19200","38400","57600","115200"});
+		baudBox = new JComboBox<>(new String[]{"9600", "19200", "38400", "57600", "115200"});
 		baudBox.setEditable(true);
 		panelAttachment.add(baudBox);
 		
@@ -81,31 +79,25 @@ public class DMRecordHeaderPanel extends JPanel {
 		closeBtn.setEnabled(false);
 		
 		final JButton openBtn = new JButton(res.getString("open_serial"));
-		openBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (portBox.getSelectedItem() == null) return;
-				String input = ((String)portBox.getSelectedItem()).trim();
-				if (!input.isEmpty()) {
-					if (openSerial(input)) {
-						closeBtn.setEnabled(true);
-						openBtn.setEnabled(false);
-						playBtn.setEnabled(true);
-					}
+		openBtn.addActionListener(e -> {
+			if (portBox.getSelectedItem() == null) return;
+			String input = ((String)portBox.getSelectedItem()).trim();
+			if (!input.isEmpty()) {
+				if (openSerial(input)) {
+					closeBtn.setEnabled(true);
+					openBtn.setEnabled(false);
+					playBtn.setEnabled(true);
 				}
 			}
 		});
 		panelAttachment.add(openBtn);
 		panelAttachment.add(closeBtn);
 		
-		closeBtn.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				closeSerial();
-				closeBtn.setEnabled(false);
-				openBtn.setEnabled(true);
-				playBtn.setEnabled(false);
-			}
+		closeBtn.addActionListener(e -> {
+			closeSerial();
+			closeBtn.setEnabled(false);
+			openBtn.setEnabled(true);
+			playBtn.setEnabled(false);
 		});
 
 		playBtn.addActionListener(new ActionListener() {
@@ -142,7 +134,7 @@ public class DMRecordHeaderPanel extends JPanel {
 								parent.setFrame(counter);
 								
 								try {
-									byte data[] = parent.getRecordFrame().getSimpleData();
+									byte[] data = parent.getRecordFrame().getSimpleData();
 									outputStream.write(data);
 								} catch (IOException e) {
 									this.cancel();
@@ -203,7 +195,7 @@ public class DMRecordHeaderPanel extends JPanel {
 	
 	public List<String> enumeratePorts() {
 		// scan available COM ports
-		List<String> ports = new ArrayList<String>();
+		List<String> ports = new ArrayList<>();
 		System.out.println("enumerate serial ports");
 		
 		try {
@@ -243,14 +235,14 @@ public class DMRecordHeaderPanel extends JPanel {
 		        	
 		            try {
 		            	// attempt to open
-		                port = (SerialPort) port_id.open("PortListOpen", 20);
+		                port = port_id.open("PortListOpen", 20);
 		                if (port == null) {
 		                	throw new Exception("Cannot open port: " + name);
 		                }
 		                
 		                System.out.println("serial port opened: " + name);
 		  
-	                    int baudRate = Integer.parseInt((String)baudBox.getSelectedItem());
+	                    int baudRate = Integer.parseInt((String) Objects.requireNonNull(baudBox.getSelectedItem()));
 	                    port.setSerialPortParams(
 	                            baudRate,
 	                            SerialPort.DATABITS_8,

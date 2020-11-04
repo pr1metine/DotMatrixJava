@@ -30,7 +30,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class DotMatrixTest extends JFrame {
+public class DotMatrixGUI extends JFrame {
 	private static final long serialVersionUID = 5805285424717739698L;
 
 	private DMRecord dmr;
@@ -49,8 +49,7 @@ public class DotMatrixTest extends JFrame {
 			"append", "insert", "update", "delete", "-", "mode", "brightness",
 			"span" };
 
-	private static final String PROGRAME_NAME = new String(
-			"3D8 TF Animation Editor");
+	private static final String PROGRAM_NAME = "3D8 TF Animation Editor";
 
 	private Locale locale = Locale.ENGLISH;
 	private ResourceBundle res;
@@ -59,16 +58,16 @@ public class DotMatrixTest extends JFrame {
 	private String message;
 	private boolean isSaved = true;
 	private boolean firstInit = true;
-	private JFileChooser fs = new JFileChooser();
+	private final JFileChooser fs = new JFileChooser();
 
 	public static void main(String[] args) {
-		DotMatrixTest dmt = new DotMatrixTest();
+		DotMatrixGUI dmt = new DotMatrixGUI();
 		dmt.init();
 	}
 
 	public void init() {
 		res = ResourceBundle
-				.getBundle("aguegu.dotmatrix.DotMatrixTest", locale);
+				.getBundle("aguegu.dotmatrix.DotMatrixGUI", locale);
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -125,7 +124,7 @@ public class DotMatrixTest extends JFrame {
 			FileNameExtensionFilter filter = new FileNameExtensionFilter(
 					"3D8 animation record (*.dat)", "dat");
 			fs.setFileFilter(filter);
-			File file = null;
+			File file;
 			int result;
 
 			switch (e.getActionCommand()) {
@@ -151,7 +150,7 @@ public class DotMatrixTest extends JFrame {
 
 				fileRecord = file;
 				dmr.readRecord(fileRecord);
-				listFrame.syncToReocrd();
+				listFrame.syncToRecord();
 
 				if (dmr.getLength() > 0)
 					listFrame.setSelectedIndex(0);
@@ -192,7 +191,7 @@ public class DotMatrixTest extends JFrame {
 		}
 	}
 
-    private class ActionListenerRocordOperation implements ActionListener {
+    private class ActionListenerRecordOperation implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			int index = listFrame.getSelectedIndex();
@@ -200,12 +199,12 @@ public class DotMatrixTest extends JFrame {
 			switch (e.getActionCommand()) {
 			case "insert":
 				dmr.insert(panelRecord.getData(), index);
-				listFrame.syncToReocrd();
+				listFrame.syncToRecord();
 				listFrame.setSelectedIndex(index);
 				break;
 			case "append":
 				dmr.append(panelRecord.getData(), index);
-				listFrame.syncToReocrd();
+				listFrame.syncToRecord();
 				listFrame.setSelectedIndex(index + 1);
 				break;
 			case "update":
@@ -217,7 +216,7 @@ public class DotMatrixTest extends JFrame {
 				if (index == -1)
 					break;
 				dmr.remove(index);
-				listFrame.syncToReocrd();
+				listFrame.syncToRecord();
 				break;
 			case "mode":
 				String sMode = JOptionPane.showInputDialog(
@@ -311,7 +310,7 @@ public class DotMatrixTest extends JFrame {
 				JMenuItem button = new JMenuItem(res.getString(s));
 
 				button.setActionCommand(s);
-		button.addActionListener(new ActionListenerRocordOperation());
+		button.addActionListener(new ActionListenerRecordOperation());
 				mnRecord.add(button);
 			}
 
@@ -348,8 +347,7 @@ public class DotMatrixTest extends JFrame {
 			case "about":
 				JOptionPane.showMessageDialog(this,
 						"For more info, check\nhttp://aguegu.net\nhttp://www.wzona.info",
-						res.getString("about"), JOptionPane.OK_OPTION
-								| JOptionPane.INFORMATION_MESSAGE);
+						res.getString("about"), JOptionPane.INFORMATION_MESSAGE);
 				break;
 			case "chinese":
 				locale = Locale.CHINESE;
@@ -365,7 +363,7 @@ public class DotMatrixTest extends JFrame {
 
 	private void begin() {
 		// dmr.clear();
-		listFrame.syncToReocrd();
+		listFrame.syncToRecord();
 
 		panelRecord.refresh(true);
 		fileRecord = null;
@@ -409,10 +407,10 @@ public class DotMatrixTest extends JFrame {
 		labelStatus.setText(message);
 
 		if (fileRecord == null)
-			this.setTitle(PROGRAME_NAME);
+			this.setTitle(PROGRAM_NAME);
 		else
 
-			this.setTitle(PROGRAME_NAME + " | " + fileRecord.getName() + " "
+			this.setTitle(PROGRAM_NAME + " | " + fileRecord.getName() + " "
 					+ (isSaved ? "" : "*"));
 	}
 
@@ -432,7 +430,7 @@ public class DotMatrixTest extends JFrame {
 
 		panel.add(toolbarFile);
 
-		JToolBar toolbarReord = new JToolBar();
+		JToolBar toolbarRecord = new JToolBar();
 
 		for (int i = 0; i < Arrays.asList(RECORD_OPERATION_COMMANDS).indexOf(
 				"-"); i++) {
@@ -440,12 +438,12 @@ public class DotMatrixTest extends JFrame {
 			JButton button = new JButton(new ImageIcon(getClass().getResource(
 					"/image/" + s + ".png")));
 			button.setActionCommand(s);
-	    button.addActionListener(new ActionListenerRocordOperation());
+	    button.addActionListener(new ActionListenerRecordOperation());
 			button.setToolTipText(res.getString(s));
-			toolbarReord.add(button);
+			toolbarRecord.add(button);
 		}
 
-		panel.add(toolbarReord);
+		panel.add(toolbarRecord);
 
 		return panel;
 	}

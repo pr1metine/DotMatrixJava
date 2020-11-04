@@ -1,7 +1,7 @@
 package aguegu.dotmatrix;
 
 public class DMRecordFrame {
-	private DotMatrix dm;
+	private final DotMatrix dm;
 	private DMMode mode;
 	private int brightness;
 	private DMAttachment attachment;

@@ -36,11 +36,10 @@ public class DMRecordPanel extends JPanel {
 
 	private DMRecordFrame dmrf;
 
-	private DMPanel panelDm;
+	private final DMPanel panelDm;
 
-	private JPanel panelController;
-	private JTextArea textAreaCache;
-	private DMRecordHeaderPanel panelHeader;
+	private final JTextArea textAreaCache;
+	private final DMRecordHeaderPanel panelHeader;
 
 	private JCheckBox checkboxInLoop;
 	private JCheckBoxMenuItem miInLoop;
@@ -52,34 +51,33 @@ public class DMRecordPanel extends JPanel {
 			"2a", "1c", "1a", "0c", "0a", "r" };
 
 	private boolean inLoop = true;
-	private static Font monoFont;
 
 	private JMenu menu;
 	private JPanel panelFrameOperation;
 
-	private ResourceBundle res;
-	private DotMatrixTest parent;
+	private final ResourceBundle res;
+	private final DotMatrixGUI parent;
 
-	public DMRecordPanel(DotMatrixTest parent, DMRecordPanel prev, ResourceBundle res) {
+	public DMRecordPanel(DotMatrixGUI parent, DMRecordPanel prev, ResourceBundle res) {
 		this.res = res;
 		this.parent = parent;
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-		panelController = new JPanel();
+		JPanel panelController = new JPanel();
 		panelController.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 2));
 
 		panelDm = new DMPanel();
 		panelDm.addMouseListener(new MouseListenerPanelDotMatrix());
 		this.add(panelDm);
 
-		monoFont = new Font("monospaced", Font.PLAIN, 12);
+		Font monoFont = new Font("monospaced", Font.PLAIN, 12);
 
 		textAreaCache = new JTextArea(9, 51);
 		textAreaCache.setLineWrap(true);
 		textAreaCache.setFont(monoFont);
 
 		Document doc = textAreaCache.getDocument();
-		doc.addDocumentListener(new DocumentListeneDotMatrixTextArea());
+		doc.addDocumentListener(new DocumentListenerDotMatrixTextArea());
 
 		JScrollPane textAreaPane = new JScrollPane(textAreaCache,
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -149,7 +147,7 @@ public class DMRecordPanel extends JPanel {
 		}
 	}
 
-	private class DocumentListeneDotMatrixTextArea implements DocumentListener {
+	private class DocumentListenerDotMatrixTextArea implements DocumentListener {
 		@Override
 		public void insertUpdate(DocumentEvent e) {
 			if (!textAreaCache.isFocusOwner())

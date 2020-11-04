@@ -12,7 +12,7 @@ import java.awt.Graphics2D;
 class DMPanel extends JPanel implements MouseListener {
 	private static final long serialVersionUID = -2531292225634588108L;
 	private DotMatrix dm;
-	private DMImage[] dmi;
+	private final DMImage[] dmi;
 	private DMMode mode;
 
 	public DMPanel() {
