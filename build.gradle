@@ -1,5 +1,4 @@
 plugins {
-    id('java')
     id('application')
 }
 
@@ -26,4 +25,5 @@ distributions {
 
 dependencies {
     implementation 'com.neuronrobotics:nrjavaserial:5.2.1'
+    implementation 'com.pi4j:pi4j-core:1.2'
 }

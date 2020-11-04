@@ -1,5 +1,16 @@
 package aguegu.dotmatrix;
 
+import com.pi4j.io.gpio.exception.UnsupportedBoardType;
+import com.pi4j.io.serial.Baud;
+import com.pi4j.io.serial.DataBits;
+import com.pi4j.io.serial.FlowControl;
+import com.pi4j.io.serial.Parity;
+import com.pi4j.io.serial.Serial;
+import com.pi4j.io.serial.SerialConfig;
+import com.pi4j.io.serial.SerialDataEvent;
+import com.pi4j.io.serial.SerialDataEventListener;
+import com.pi4j.io.serial.SerialFactory;
+import com.pi4j.io.serial.StopBits;
 import gnu.io.CommPortIdentifier;
 import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
@@ -34,6 +45,7 @@ public class DMRecordHeaderPanel extends JPanel {
 	private static final long serialVersionUID = 7530602456593370095L;
 
 	private DMRecordPanel parent;
+	private ResourceBundle res;
 
 	private SerialPort port;
 	private OutputStream outputStream;
@@ -45,6 +57,7 @@ public class DMRecordHeaderPanel extends JPanel {
 
 	public DMRecordHeaderPanel(DMRecordPanel dmrp, final ResourceBundle res) {
 		parent = dmrp;
+		this.res = res;
 		this.setLayout(new FlowLayout(FlowLayout.LEFT));
 		this.setBorder(new EmptyBorder(new Insets(0, 4, 0, 0)));
 		
@@ -197,10 +210,11 @@ public class DMRecordHeaderPanel extends JPanel {
 		// scan available COM ports
 		List<String> ports = new ArrayList<>();
 		System.out.println("enumerate serial ports");
+		ports.add("RasPi GPIO");
 		
 		try {
 			Enumeration<?> port_list = CommPortIdentifier.getPortIdentifiers();
-			
+
 		    while (port_list.hasMoreElements()) {
 		    	CommPortIdentifier port_id = (CommPortIdentifier) port_list.nextElement();
 		        if (port_id.getPortType() == CommPortIdentifier.PORT_SERIAL) {
@@ -225,8 +239,9 @@ public class DMRecordHeaderPanel extends JPanel {
 			
 		    Enumeration<?> port_list = CommPortIdentifier.getPortIdentifiers();
 		    boolean found = false;
-		
-		    while (port_list.hasMoreElements()) {
+			int baudRate = Integer.parseInt((String) Objects.requireNonNull(baudBox.getSelectedItem()));
+
+			while (port_list.hasMoreElements()) {
 		        // Get the list of ports
 		        CommPortIdentifier port_id = (CommPortIdentifier) port_list.nextElement();
 		        
@@ -242,7 +257,6 @@ public class DMRecordHeaderPanel extends JPanel {
 		                
 		                System.out.println("serial port opened: " + name);
 		  
-	                    int baudRate = Integer.parseInt((String) Objects.requireNonNull(baudBox.getSelectedItem()));
 	                    port.setSerialPortParams(
 	                            baudRate,
 	                            SerialPort.DATABITS_8,
@@ -263,17 +277,52 @@ public class DMRecordHeaderPanel extends JPanel {
 	                }
 	            }
 		    }
-		    
+
+		    // check if GPIO was selected
+			if ("RasPi GPIO".equals(name)) {
+			    found = true;
+
+				try {
+					Serial serial = SerialFactory.createInstance();
+
+					serial.addListener(e -> {
+						try {
+							JOptionPane.showMessageDialog(parent, e.getHexByteString());
+						} catch (IOException e1) {
+							JOptionPane.showMessageDialog(parent, e1.getLocalizedMessage());
+						}
+					});
+
+					SerialConfig config = new SerialConfig();
+					config.device(Serial.DEFAULT_COM_PORT)
+						  .baud(Baud.getInstance(baudRate))
+						  .dataBits(DataBits._8)
+						  .parity(Parity.NONE)
+						  .stopBits(StopBits._1)
+						  .flowControl(FlowControl.NONE);
+
+					serial.open(config);
+					outputStream = serial.getOutputStream();
+					return true;
+
+				} catch (UnsatisfiedLinkError e1) {
+					JOptionPane.showMessageDialog(null, "Error initializing serial port:\n" + e1.getMessage() + "\nHave you installed Pi4J yet? Are you running this program on a Raspberry Pi?", e1.getClass().getName(), JOptionPane.ERROR_MESSAGE);
+				} catch (Exception e2) {
+					JOptionPane.showMessageDialog(parent, e2.getLocalizedMessage(), "Raspberry Pi error", JOptionPane.ERROR_MESSAGE);
+				}
+
+			}
+
 		    // not found
 		    if (!found) {
 		    	JOptionPane.showMessageDialog(null, "Serial port not found: " + name, "Serial error", JOptionPane.ERROR_MESSAGE);
 		    }
 		} catch (UnsatisfiedLinkError e) {
-			JOptionPane.showMessageDialog(null, "Error initializing serial port:\n" + e.getMessage(), "Serial error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Error initializing serial port:\n" + e.getMessage() + "\nThis normally indicates that your platform is not supported.", "Serial error", JOptionPane.ERROR_MESSAGE);
 		}
-		
-	    return false;
-    }
+
+		return false;
+	}
 	
 	private void closeSerial() {
 		if (port != null) {
